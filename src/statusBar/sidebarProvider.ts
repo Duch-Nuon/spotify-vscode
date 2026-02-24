@@ -28,6 +28,15 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
                 case "logout":
                     vscode.commands.executeCommand("spotify-vscode.logout");
                     break;
+                case "togglePlay":
+                    vscode.commands.executeCommand("spotify-vscode.togglePlay");
+                    break;
+                case "next":
+                    vscode.commands.executeCommand("spotify-vscode.next");
+                    break;
+                case "previous":
+                    vscode.commands.executeCommand("spotify-vscode.previous");
+                    break;
             }
         });
     }

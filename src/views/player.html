@@ -159,7 +159,7 @@
         <button class="ctrl-btn" id="prevBtn" title="Previous">&#9664;</button>
         <button class="ctrl-btn play" id="playBtn" title="Play/Pause">&#9654;</button>
         <button class="ctrl-btn" id="nextBtn" title="Next">&#9654;</button>
-        <button class="ctrl-btn" id="favBtn" title="Like">&#9829;</button>
+        <!-- <button class="ctrl-btn" id="favBtn" title="Like">&#9829;</button> -->
     </div>
 
     <div class="divider"></div>
@@ -176,9 +176,9 @@
         document.getElementById('nextBtn').addEventListener('click', () => {
             vscode.postMessage({ command: 'next' });
         });
-        document.getElementById('favBtn').addEventListener('click', () => {
-            vscode.postMessage({ command: 'favorite' });
-        });
+       // document.getElementById('favBtn').addEventListener('click', () => {
+        //    vscode.postMessage({ command: 'favorite' });
+       // });
         document.getElementById('logoutBtn').addEventListener('click', () => {
             vscode.postMessage({ command: 'logout' });
         });

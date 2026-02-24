@@ -1,11 +1,20 @@
+
 import * as vscode from 'vscode';
 import * as crypto from 'crypto';
 import * as http from 'http';
 import { TokenStorage } from './tokenStorage.js';
+import 'dotenv/config';
 
-const CLIENT_ID = 'd38c1bd5f86e4e45afd9c527f0ecac76';
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || '';
 const REDIRECT_URI = 'http://127.0.0.1:8000/callback';
-const SCOPES = 'user-read-private user-read-email';
+
+const SCOPES = [
+  'user-modify-playback-state',
+  'user-read-playback-state',
+  'user-read-currently-playing',
+  'user-library-modify',
+  'user-library-read',
+].join(' ');
 
 function generateRandomString(length: number): string {
   return crypto.randomBytes(length).toString('base64url').slice(0, length);
@@ -64,7 +73,7 @@ export async function loginWithSpotify(): Promise<string | null> {
       const refreshed = await refreshToken(rt);
       if (refreshed) {
         await tokenStorage.save(refreshed.accessToken, refreshed.refreshToken, refreshed.expiresIn);
-        vscode.window.showInformationMessage('Spotify: Session refreshed.');
+        vscode.window.showInformationMessage('Spotify: Session refreshed.');        
         return refreshed.accessToken;
       }
     }
