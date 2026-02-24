@@ -59,7 +59,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
                 //     break;
             }
 
-            await new Promise(resolve => setTimeout(resolve, 500)); 
+            await new Promise(resolve => setTimeout(resolve, 1000)); 
 
             if (["togglePlay", "next", "previous"].includes(message.command)) {
                  const trackInfo = await getCurrentTrackInfo();                 
