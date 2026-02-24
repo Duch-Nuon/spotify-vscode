@@ -2,13 +2,15 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import { isLoggedIn } from "../auth/authProvider.js";
-import { getCurrentTrackInfo } from "../player/playerState.js";
+import { TrackPoller } from "../player/trackPoller.js";
+
+export const trackPoller = new TrackPoller(1000);
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = "spotifySidebarView";
     private _view?: vscode.WebviewView;
 
-    private _lastTrackInfo?: { name: string; artist: string; albumArtUrl: string };
+    private _lastTrackInfo?: { name: string; artist: string; albumArtUrl: string, isPlaying?: boolean };
 
     constructor(private readonly context: vscode.ExtensionContext) { }
 
@@ -20,17 +22,25 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             localResourceRoots: [this.context.extensionUri],
         };
 
+        // subscribe to poller — auto updates UI when track changes
+        const unsubscribe = trackPoller.onTrackChanged((track) => {
+            this.updateCurrentTrackInfo(track.name, track.artist, track.albumArtUrl, track.isPlaying);
+        });
+
         webviewView.onDidChangeVisibility(() => {
             if (webviewView.visible) {
                 if (this._lastTrackInfo) {
                     this.updateCurrentTrackInfo(
                         this._lastTrackInfo.name,
                         this._lastTrackInfo.artist,
-                        this._lastTrackInfo.albumArtUrl
+                        this._lastTrackInfo.albumArtUrl,
+                        this._lastTrackInfo.isPlaying
                     );
                 }
             }
         });
+
+        webviewView.onDidDispose(unsubscribe); // cleanup listener
 
         // Show the right view based on login state
         this.updateView();
@@ -41,9 +51,11 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
                 case "login":
                     vscode.commands.executeCommand("spotify-vscode.login");
+                    trackPoller.start();
                     break;
                 case "logout":
                     vscode.commands.executeCommand("spotify-vscode.logout");
+                    trackPoller.stop();
                     break;
                 case "togglePlay":
                     vscode.commands.executeCommand("spotify-vscode.togglePlay");
@@ -58,19 +70,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
                 //     vscode.commands.executeCommand("spotify-vscode.favorite");
                 //     break;
             }
-
-            await new Promise(resolve => setTimeout(resolve, 1000)); 
-
-            if (["togglePlay", "next", "previous"].includes(message.command)) {
-                 const trackInfo = await getCurrentTrackInfo();                 
-                if (trackInfo) {
-                    this.updateCurrentTrackInfo(
-                    trackInfo.name,
-                    trackInfo.artist,
-                    trackInfo.albumArtUrl
-                    );
-                }
-            }
         });
     }
 
@@ -83,11 +82,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         const htmlFile = loggedIn ? "player.html" : "login.html";
         this._view.webview.html = this.loadHtml(this._view.webview, htmlFile);
 
-        if(loggedIn) {
-            const trackInfo = await getCurrentTrackInfo();
-            if (trackInfo) {
-                this.updateCurrentTrackInfo(trackInfo.name, trackInfo.artist, trackInfo.albumArtUrl);
-            }
+        if (loggedIn && !trackPoller.isRunning()) {
+            trackPoller.start(); // ensure poller is running if logged in
         }
     }
 
@@ -105,18 +101,19 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         return html;
     }
 
-    public updateCurrentTrackInfo(name: string, artist: string, albumArtUrl: string) {
+    public updateCurrentTrackInfo(name: string, artist: string, albumArtUrl: string, isPlaying?: boolean) {
 
         if (!this._view){
             return;
         }
 
-        this._lastTrackInfo = { name, artist, albumArtUrl };
+        this._lastTrackInfo = { name, artist, albumArtUrl, isPlaying };
 
         this._view.webview.postMessage({
             name,
             artist,
-            albumArtUrl
+            albumArtUrl,
+            isPlaying
         });
     }   
 }
