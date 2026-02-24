@@ -155,6 +155,14 @@
         <div class="no-track">No track playing</div>
     </div>
 
+    <div class="current-track-play" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; width: 100%;">
+        <div class="album-art-wrapper" style="width: 100%; max-width: 320px; aspect-ratio: 1/1; border-radius: 16px; overflow: hidden; background: #222; box-shadow: 0 2px 16px rgba(0,0,0,0.18); display: flex; align-items: center; justify-content: center; margin-bottom: 18px;">
+            <img id="albumArt" src="{{imageTrackUrl}}" alt="Album Art" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        </div>
+        <div class="track-name" id="trackName" style="font-size: 18px; font-weight: 700; margin-bottom: 6px; text-align: center; width: 100%;">Track Name</div>
+        <div class="track-artist" id="trackArtist" style="font-size: 15px; color: var(--vscode-descriptionForeground); text-align: center; width: 100%;">Artist Name</div>
+    </div>
+
     <div class="controls">
         <button class="ctrl-btn" id="prevBtn" title="Previous">&#9664;</button>
         <button class="ctrl-btn play" id="playBtn" title="Play/Pause">&#9654;</button>
@@ -166,6 +174,7 @@
     <button class="logout-btn" id="logoutBtn">Sign out</button>
 
     <script>
+
         const vscode = acquireVsCodeApi();
         document.getElementById('prevBtn').addEventListener('click', () => {
             vscode.postMessage({ command: 'previous' });
@@ -176,11 +185,23 @@
         document.getElementById('nextBtn').addEventListener('click', () => {
             vscode.postMessage({ command: 'next' });
         });
-       // document.getElementById('favBtn').addEventListener('click', () => {
-        //    vscode.postMessage({ command: 'favorite' });
-       // });
         document.getElementById('logoutBtn').addEventListener('click', () => {
             vscode.postMessage({ command: 'logout' });
+        });
+
+        // Listen for messages from the extension to update track info
+        window.addEventListener('message', event => {
+
+            const { albumArtUrl, name, artist } = event.data || {};
+            if (albumArtUrl) {
+                document.getElementById('albumArt').src = albumArtUrl;
+            }
+            if (name) {
+                document.getElementById('trackName').textContent = name;
+            }
+            if (artist) {
+                document.getElementById('trackArtist').textContent = artist;
+            }
         });
     </script>
 </body>

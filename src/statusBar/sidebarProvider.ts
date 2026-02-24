@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import { isLoggedIn } from "../auth/authProvider.js";
+import { getCurrentTrackInfo } from "../player/playerState.js";
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = "spotifySidebarView";
@@ -20,8 +21,16 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         // Show the right view based on login state
         this.updateView();
 
-        webviewView.webview.onDidReceiveMessage((message) => {
+        webviewView.webview.onDidReceiveMessage(async (message) => {
+
+            const trackInfo = await getCurrentTrackInfo();
+
+            if (trackInfo) {
+                this.updateCurrentTrackInfo(trackInfo.name, trackInfo.artist, trackInfo.albumArtUrl);
+            }
+
             switch (message.command) {
+
                 case "login":
                     vscode.commands.executeCommand("spotify-vscode.login");
                     break;
@@ -32,11 +41,18 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
                     vscode.commands.executeCommand("spotify-vscode.togglePlay");
                     break;
                 case "next":
+                    const trackInfo = await getCurrentTrackInfo();
+                    if (trackInfo) {
+                        this.updateCurrentTrackInfo(trackInfo.name, trackInfo.artist, trackInfo.albumArtUrl);
+                    }
                     vscode.commands.executeCommand("spotify-vscode.next");
                     break;
                 case "previous":
                     vscode.commands.executeCommand("spotify-vscode.previous");
                     break;
+                // case "favorite":
+                //     vscode.commands.executeCommand("spotify-vscode.favorite");
+                //     break;
             }
         });
     }
@@ -49,6 +65,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         const loggedIn = await isLoggedIn();
         const htmlFile = loggedIn ? "player.html" : "login.html";
         this._view.webview.html = this.loadHtml(this._view.webview, htmlFile);
+
+        if(loggedIn) {
+            const trackInfo = await getCurrentTrackInfo();
+            if (trackInfo) {
+                this.updateCurrentTrackInfo(trackInfo.name, trackInfo.artist, trackInfo.albumArtUrl);
+            }
+        }
     }
 
     /** Read an HTML file from views/ and replace {{placeholders}} with webview URIs. */
@@ -64,4 +87,17 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
         return html;
     }
+
+    public updateCurrentTrackInfo(name: string, artist: string, albumArtUrl: string) {
+
+        if (!this._view){
+            return;
+        }
+
+        this._view.webview.postMessage({
+            name,
+            artist,
+            albumArtUrl
+        });
+    }   
 }
