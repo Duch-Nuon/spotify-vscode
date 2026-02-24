@@ -35,6 +35,13 @@ export class PlayerController {
 
         const state = await SpotifyClient.getPlayBackState(this.token);
         const isPlaying = state?.is_playing ?? false;
+        const isDeviceAvailable = state?.device.is_active ?? false;
+
+        if (!isDeviceAvailable) {
+            vscode.window.showErrorMessage('Spotify: No active device available');
+            vscode.env.openExternal(vscode.Uri.parse("spotify:"));
+            return;
+        }
 
         const success = await SpotifyClient.togglePlayPause(this.token, isPlaying);
 

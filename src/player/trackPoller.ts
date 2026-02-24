@@ -5,6 +5,7 @@ export interface TrackInfo {
     artist: string;
     albumArtUrl: string;
     isPlaying?: boolean;
+    isDeviceAvailable?: boolean;
 }
 
 export class TrackPoller {
@@ -24,7 +25,8 @@ export class TrackPoller {
                 trackInfo.name !== this._lastTrackInfo?.name ||
                 trackInfo.artist !== this._lastTrackInfo?.artist ||
                 trackInfo.albumArtUrl !== this._lastTrackInfo?.albumArtUrl ||
-                trackInfo.isPlaying !== this._lastTrackInfo?.isPlaying;
+                trackInfo.isPlaying !== this._lastTrackInfo?.isPlaying ||
+                trackInfo.isDeviceAvailable !== this._lastTrackInfo?.isDeviceAvailable;
 
             if (changed) {
                 this._lastTrackInfo = trackInfo;

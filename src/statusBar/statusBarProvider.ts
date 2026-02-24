@@ -57,9 +57,19 @@ export class StatusBarProvider {
     }
 
     private updateTrack(track: TrackInfo) {
+        
+        if (!track.isDeviceAvailable) {
+            this._trackItem.text = "$(music) No Device Available — Click to open Spotify";
+            this._trackItem.tooltip = "Click to open Spotify";
+            this._trackItem.command = "spotify-vscode.openSpotify"; // 👈 clickable
+            this._playPauseItem.text = "$(debug-start)";
+            return;
+        }
+
+        this._trackItem.command = undefined;
         this._trackItem.text = `$(music) ${track.name}  —  ${track.artist}`;
         this._trackItem.tooltip = `${track.name} by ${track.artist}`;
-        this._playPauseItem.text = track.isPlaying ? "$(debug-pause)" : "$(debug-start)"; // 👈
+        this._playPauseItem.text = track.isPlaying ? "$(debug-pause)" : "$(debug-start)";
     }
 
     public show() {

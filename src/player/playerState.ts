@@ -6,6 +6,7 @@ export interface CurrentTrackInfo {
 	artist: string;
 	albumArtUrl: string;
 	isPlaying?: boolean;
+	isDeviceAvailable?: boolean;
 }
 
 export async function getCurrentTrackInfo(): Promise<CurrentTrackInfo | null> {
@@ -20,6 +21,7 @@ export async function getCurrentTrackInfo(): Promise<CurrentTrackInfo | null> {
 	const artist = playback.item.artists.map(a => a.name).join(', ');
 	const albumArtUrl = playback.item.album.images[0]?.url || '';
 	const isPlaying = playback.is_playing;
+	const isDeviceAvailable = playback.device.is_active;
 
-	return { name, artist, albumArtUrl, isPlaying };
+	return { name, artist, albumArtUrl, isPlaying, isDeviceAvailable };
 }
