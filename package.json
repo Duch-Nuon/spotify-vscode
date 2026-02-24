@@ -9,13 +9,17 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": ["*"],
+  "activationEvents": ["onView:spotifySidebar"],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "spotify-vscode.helloWorld",
-        "title": "Hello World"
+        "command": "spotify-vscode.login",
+        "title": "Login to Spotify"
+      },
+      {
+        "command": "spotify-vscode.logout",
+        "title": "Logout from Spotify"
       }
     ],
     "viewsContainers": {
