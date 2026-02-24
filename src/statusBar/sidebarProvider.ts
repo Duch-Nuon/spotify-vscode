@@ -8,6 +8,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = "spotifySidebarView";
     private _view?: vscode.WebviewView;
 
+    private _lastTrackInfo?: { name: string; artist: string; albumArtUrl: string };
+
     constructor(private readonly context: vscode.ExtensionContext) { }
 
     public resolveWebviewView(webviewView: vscode.WebviewView) {
@@ -18,16 +20,22 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             localResourceRoots: [this.context.extensionUri],
         };
 
+        webviewView.onDidChangeVisibility(() => {
+            if (webviewView.visible) {
+                if (this._lastTrackInfo) {
+                    this.updateCurrentTrackInfo(
+                        this._lastTrackInfo.name,
+                        this._lastTrackInfo.artist,
+                        this._lastTrackInfo.albumArtUrl
+                    );
+                }
+            }
+        });
+
         // Show the right view based on login state
         this.updateView();
 
         webviewView.webview.onDidReceiveMessage(async (message) => {
-
-            const trackInfo = await getCurrentTrackInfo();
-
-            if (trackInfo) {
-                this.updateCurrentTrackInfo(trackInfo.name, trackInfo.artist, trackInfo.albumArtUrl);
-            }
 
             switch (message.command) {
 
@@ -41,10 +49,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
                     vscode.commands.executeCommand("spotify-vscode.togglePlay");
                     break;
                 case "next":
-                    const trackInfo = await getCurrentTrackInfo();
-                    if (trackInfo) {
-                        this.updateCurrentTrackInfo(trackInfo.name, trackInfo.artist, trackInfo.albumArtUrl);
-                    }
                     vscode.commands.executeCommand("spotify-vscode.next");
                     break;
                 case "previous":
@@ -53,6 +57,19 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
                 // case "favorite":
                 //     vscode.commands.executeCommand("spotify-vscode.favorite");
                 //     break;
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 500)); 
+
+            if (["togglePlay", "next", "previous"].includes(message.command)) {
+                 const trackInfo = await getCurrentTrackInfo();                 
+                if (trackInfo) {
+                    this.updateCurrentTrackInfo(
+                    trackInfo.name,
+                    trackInfo.artist,
+                    trackInfo.albumArtUrl
+                    );
+                }
             }
         });
     }
@@ -93,6 +110,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         if (!this._view){
             return;
         }
+
+        this._lastTrackInfo = { name, artist, albumArtUrl };
 
         this._view.webview.postMessage({
             name,

@@ -19,5 +19,5 @@ export async function getCurrentTrackInfo(): Promise<CurrentTrackInfo | null> {
 	const artist = playback.item.artists.map(a => a.name).join(', ');
 	const albumArtUrl = playback.item.album.images[0]?.url || '';
 
-	return { name, artist, albumArtUrl }
+	return { name, artist, albumArtUrl };
 }

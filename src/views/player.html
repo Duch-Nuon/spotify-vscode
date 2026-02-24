@@ -189,20 +189,36 @@
             vscode.postMessage({ command: 'logout' });
         });
 
+        const albumArtEl = document.getElementById('albumArt');
+        const trackNameEl = document.getElementById('trackName');
+        const trackArtistEl = document.getElementById('trackArtist');
+
+        let lastAlbumArt = '';
+        let lastName = '';
+        let lastArtist = '';
+
         // Listen for messages from the extension to update track info
-        window.addEventListener('message', event => {
+        window.addEventListener('message', (event) => {
 
             const { albumArtUrl, name, artist } = event.data || {};
-            if (albumArtUrl) {
-                document.getElementById('albumArt').src = albumArtUrl;
+
+            if (albumArtUrl && albumArtUrl !== lastAlbumArt) {
+                albumArtEl.src = albumArtUrl;
+                lastAlbumArt = albumArtUrl;
             }
-            if (name) {
-                document.getElementById('trackName').textContent = name;
+
+            if (name && name !== lastName) {
+                trackNameEl.textContent = name;
+                lastName = name;
             }
-            if (artist) {
-                document.getElementById('trackArtist').textContent = artist;
+
+            if (artist && artist !== lastArtist) {
+                trackArtistEl.textContent = artist;
+                lastArtist = artist;
             }
-        });
+
+            });
+
     </script>
 </body>
 </html>
