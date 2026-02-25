@@ -1,4 +1,7 @@
+![Extension Screenshot](media/Screenshot-not-login.png)
 # Spotify VS Code Extension
+
+![Spotify Extension Banner](media/Screenshot-login.png)
 
 This extension integrates Spotify controls directly into Visual Studio Code, allowing you to manage your music without leaving your editor.
 
