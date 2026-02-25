@@ -5,8 +5,10 @@ import * as http from 'http';
 import { TokenStorage } from './tokenStorage.js';
 import 'dotenv/config';
 
-const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || '';
-const REDIRECT_URI = 'http://127.0.0.1:8000/callback';
+const config = vscode.workspace.getConfiguration('spotify');
+const clientId = config.get<string>('clientId');
+
+const REDIRECT_URI = 'http://127.0.0.1:7867/callback';
 
 const SCOPES = [
   'user-modify-playback-state',
@@ -85,7 +87,7 @@ export async function loginWithSpotify(): Promise<string | null> {
 
   const authUrl = new URL('https://accounts.spotify.com/authorize');
   authUrl.searchParams.set('response_type', 'code');
-  authUrl.searchParams.set('client_id', CLIENT_ID);
+  authUrl.searchParams.set('client_id', clientId ?? '');
   authUrl.searchParams.set('scope', SCOPES);
   authUrl.searchParams.set('code_challenge_method', 'S256');
   authUrl.searchParams.set('code_challenge', codeChallenge);
@@ -130,7 +132,7 @@ function waitForCallback(): Promise<string | null> {
       }
     });
 
-    server.listen(8000, '127.0.0.1');
+    server.listen(7867, '127.0.0.1');
 
     // Timeout after 2 minutes
     setTimeout(() => {
@@ -145,7 +147,7 @@ async function exchangeCodeForToken(code: string, codeVerifier: string): Promise
     grant_type: 'authorization_code',
     code,
     redirect_uri: REDIRECT_URI,
-    client_id: CLIENT_ID,
+    client_id: clientId ?? '',
     code_verifier: codeVerifier,
   });
 
@@ -177,7 +179,7 @@ async function refreshToken(rt: string): Promise<{ accessToken: string; refreshT
   const body = new URLSearchParams({
     grant_type: 'refresh_token',
     refresh_token: rt,
-    client_id: CLIENT_ID,
+    client_id: clientId ?? '',
   });
 
   const response = await fetch('https://accounts.spotify.com/api/token', {

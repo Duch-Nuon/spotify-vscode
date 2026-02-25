@@ -14,7 +14,7 @@ export function registerAllCommands(context: vscode.ExtensionContext, sidebarPro
     registerNextCommand(context, statusBarProvider, sidebarProvider),
     registerPreviousCommand(context, statusBarProvider, sidebarProvider),
     registerFavoriteCommand(context),
-    registerLoginCommand(context, sidebarProvider),
-    registerLogoutCommand(context, sidebarProvider)
+    registerLoginCommand(context, sidebarProvider, statusBarProvider),
+    registerLogoutCommand(context, sidebarProvider, statusBarProvider)
   );
 }
