@@ -2,10 +2,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import { isLoggedIn } from "../auth/authProvider.js";
-import { TrackPoller } from "../player/trackPoller.js";
-
-export const trackPoller = new TrackPoller(1000);
-
+import { trackPoller } from "../extension.js";
 export class SidebarProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = "spotifySidebarView";
     private _view?: vscode.WebviewView;
@@ -51,11 +48,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
                 case "login":
                     vscode.commands.executeCommand("spotify-vscode.login");
-                    trackPoller.start();
                     break;
                 case "logout":
                     vscode.commands.executeCommand("spotify-vscode.logout");
-                    trackPoller.stop();
                     break;
                 case "togglePlay":
                     vscode.commands.executeCommand("spotify-vscode.togglePlay");

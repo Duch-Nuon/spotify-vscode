@@ -6,12 +6,13 @@ import { registerFavoriteCommand } from './favorite';
 import { registerLoginCommand } from './login';
 import type { SidebarProvider } from '../statusBar/sidebarProvider.js';
 import { registerLogoutCommand } from './logout';
+import { StatusBarProvider } from '../statusBar/statusBarProvider';
 
-export function registerAllCommands(context: vscode.ExtensionContext, sidebarProvider: SidebarProvider): void {
+export function registerAllCommands(context: vscode.ExtensionContext, sidebarProvider: SidebarProvider, statusBarProvider: StatusBarProvider): void {
   context.subscriptions.push(
-    registerPlayCommand(context),
-    registerNextCommand(context),
-    registerPreviousCommand(context),
+    registerPlayCommand(context, statusBarProvider, sidebarProvider),
+    registerNextCommand(context, statusBarProvider, sidebarProvider),
+    registerPreviousCommand(context, statusBarProvider, sidebarProvider),
     registerFavoriteCommand(context),
     registerLoginCommand(context, sidebarProvider),
     registerLogoutCommand(context, sidebarProvider)

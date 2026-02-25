@@ -56,7 +56,7 @@ export class StatusBarProvider {
         }
     }
 
-    private updateTrack(track: TrackInfo) {
+    public updateTrack(track: TrackInfo) {
         
         if (!track.isDeviceAvailable) {
             this._trackItem.text = "$(music) No Device Available — Click to open Spotify";

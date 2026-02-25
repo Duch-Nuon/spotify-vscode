@@ -13,12 +13,13 @@ export class TrackPoller {
     private _lastTrackInfo?: TrackInfo;
     private _listeners: Set<(track: TrackInfo) => void> = new Set();
 
-    constructor(private readonly intervalMs: number = 1500) {}
+    constructor(private readonly intervalMs: number = 15000) {}
 
     public start() {
         this.stop();
         this._interval = setInterval(async () => {
             const trackInfo = await getCurrentTrackInfo();
+            
             if (!trackInfo){
                 return;
             }

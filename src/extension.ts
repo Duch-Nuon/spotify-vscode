@@ -7,25 +7,22 @@ import { StatusBarProvider } from './statusBar/statusBarProvider.js';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-
+export const trackPoller = new TrackPoller(10000);
+export async function activate(context: vscode.ExtensionContext) {
 	// Initialize auth (must be first — other modules depend on tokenStorage)
 	initAuth(context);
-
 	const sidebarProvider = new SidebarProvider(context);
 	const statusBarProvider = new StatusBarProvider(context);
+
+	registerAllCommands(context, sidebarProvider, statusBarProvider);
 
 	statusBarProvider.init();
 	trackPoller.start();
 	context.subscriptions.push({ dispose: () => trackPoller.dispose() });
 	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(SidebarProvider.viewType, sidebarProvider)
+		vscode.window.registerWebviewViewProvider(SidebarProvider.viewType, sidebarProvider),
 	);
-
-	registerAllCommands(context, sidebarProvider);
 }
-
-export const trackPoller = new TrackPoller(1000);
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
