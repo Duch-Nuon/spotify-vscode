@@ -19,7 +19,9 @@ export class TrackPoller {
         this.stop();
         this._interval = setInterval(async () => {
             const trackInfo = await getCurrentTrackInfo();
-            if (!trackInfo) return;
+            if (!trackInfo){
+                return;
+            }
 
             const changed =
                 trackInfo.name !== this._lastTrackInfo?.name ||
