@@ -3,7 +3,6 @@ import * as vscode from 'vscode';
 import * as crypto from 'crypto';
 import * as http from 'http';
 import { TokenStorage } from './tokenStorage.js';
-import 'dotenv/config';
 
 const config = vscode.workspace.getConfiguration('spotify');
 const clientId = config.get<string>('clientId');

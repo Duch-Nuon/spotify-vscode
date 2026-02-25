@@ -84,7 +84,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     /** Read an HTML file from views/ and replace {{placeholders}} with webview URIs. */
     private loadHtml(webview: vscode.Webview, filename: string): string {
-        const filePath = path.join(this.context.extensionPath, "src/views", filename);
+        const filePath = path.join(this.context.extensionPath, "dist", "views", filename);
+        
         let html = fs.readFileSync(filePath, "utf-8");        
 
         const spotifyIconUri = webview.asWebviewUri(

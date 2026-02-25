@@ -1,4 +1,6 @@
 const esbuild = require("esbuild");
+const path = require("path"); 
+const fs = require("fs");
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
@@ -23,6 +25,29 @@ const esbuildProblemMatcherPlugin = {
 	},
 };
 
+const copyViewsPlugin = {
+    name: 'copy-views',
+    setup(build) {
+        build.onEnd(() => {
+            const srcDir = path.join(__dirname, 'src/views');
+            const destDir = path.join(__dirname, 'dist/views');
+
+            if (!fs.existsSync(destDir)) {
+                fs.mkdirSync(destDir, { recursive: true });
+            }
+
+            fs.readdirSync(srcDir).forEach(file => {
+                fs.copyFileSync(
+                    path.join(srcDir, file),
+                    path.join(destDir, file)
+                );
+            });
+
+            console.log('[copy-views] HTML views copied to dist/views');
+        });
+    },
+};
+
 async function main() {
 	const ctx = await esbuild.context({
 		entryPoints: [
@@ -39,6 +64,7 @@ async function main() {
 		logLevel: 'silent',
 		plugins: [
 			/* add to the end of plugins array */
+			copyViewsPlugin,
 			esbuildProblemMatcherPlugin,
 		],
 	});
