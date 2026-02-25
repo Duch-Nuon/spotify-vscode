@@ -44,7 +44,7 @@ export class SpotifyClient {
                 return null;
             }
             if (!response.ok) {
-                throw new Error(`Spotify API error: ${response.status}`);
+                throw new Error(`Spotify API error: ${response.status} ${await response.text()}`);
             }
 
             const data = await response.json() as SpotifyPlaybackState;
@@ -72,7 +72,7 @@ export class SpotifyClient {
             });
 
             if (!response.ok) {
-                throw new Error(`Spotify API error: ${response.status}`);
+                throw new Error(`Spotify API error: ${response.status} ${await response.text()}`);
             }
 
             const data = await response.json() as { devices: { id: string; name: string }[] };
@@ -100,7 +100,7 @@ export class SpotifyClient {
             });
 
             if (!response.ok) {
-                throw new Error(`Spotify API error: ${response.status}`);
+                throw new Error(`Spotify API error: ${response.status}` + ` ${await response.text()}`);
             }
 
             return true;
@@ -127,7 +127,7 @@ export class SpotifyClient {
             });
 
             if (!response.ok) {
-                throw new Error(`Spotify API error: ${response.status}`);
+                throw new Error(`Spotify API error: ${response.status}` + ` ${await response.text()}`);
             }
 
             return true;
@@ -155,7 +155,7 @@ export class SpotifyClient {
             });
 
             if (!response.ok) {
-                throw new Error(`Spotify API error: ${response.status}`);
+                throw new Error(`Spotify API error: ${response.status}` + ` ${await response.text()}`);
             }
 
             return true;
