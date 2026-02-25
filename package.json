@@ -1,23 +1,79 @@
 {
   "name": "spotify-vscode",
   "displayName": "spotify-vscode",
-  "description": "",
+  "description": "sportify-vscode is a Visual Studio Code extension that allows you to control Spotify playback directly from your editor. With spotify-vscode, you can play, pause, skip tracks, and manage your Spotify playlist without leaving your coding environment.",
   "version": "0.0.1",
+  "publisher": "duchnuon",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.109.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "icon": "media/spotify-icon.svg",
+   "repository": {
+    "type": "git",
+    "url": "https://github.com/Duch-Nuon/spotify-vscode.git"
+  },
+  "activationEvents": ["*"],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "spotify-vscode.helloWorld",
-        "title": "Hello World"
+        "command": "spotify-vscode.login",
+        "title": "Login to Spotify"
+      },
+      {
+        "command": "spotify-vscode.logout",
+        "title": "Logout from Spotify"
+      },
+      {
+        "command": "spotify-vscode.next",
+        "title": "Next Track"
+      },
+      {
+        "command": "spotify-vscode.previous",
+        "title": "Previous Track"
+      },
+      {
+        "command": "spotify-vscode.togglePlay",
+        "title": "Toggle Play/Pause"
+      },
+      {
+        "command": "spotify-vscode.favorite",
+        "title": "Favorite Track"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "spotifySidebar",
+          "title": "Spotify",
+          "icon": "media/spotify.png"
+        }
+      ]
+    },
+    "views": {
+      "spotifySidebar": [
+        {
+          "type": "webview",
+          "id": "spotifySidebarView",
+          "name": "Spotify",
+          "icon": "media/spotify.png"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Spotify",
+      "properties": {
+        "spotify.clientId": {
+          "type": "string",
+          "default": "d6fa3dc0fe434830a1ae1f005c915f30",
+          "description": "Spotify Application Client ID"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
@@ -34,15 +90,18 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.109.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "typescript-eslint": "^8.52.0",
-    "eslint": "^9.39.2",
+    "@types/vscode": "^1.109.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
     "esbuild": "^0.27.2",
+    "eslint": "^9.39.2",
     "npm-run-all": "^4.1.5",
     "typescript": "^5.9.3",
-    "@vscode/test-cli": "^0.0.12",
-    "@vscode/test-electron": "^2.5.2"
+    "typescript-eslint": "^8.52.0"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1"
   }
 }

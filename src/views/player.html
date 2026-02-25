@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--vscode-font-family);
+            color: var(--vscode-foreground);
+            background-color: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .header img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+        }
+
+        .header span {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+            font-size: 11px;
+            color: #1DB954;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #1DB954;
+        }
+
+        .track-info {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 16px;
+            border-radius: 8px;
+            background-color: var(--vscode-editor-background);
+        }
+
+        .track-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .track-artist {
+            font-size: 12px;
+            color: var(--vscode-descriptionForeground);
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .ctrl-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background-color: var(--vscode-button-secondaryBackground);
+            color: var(--vscode-button-secondaryForeground);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: background-color 0.15s;
+        }
+
+        .ctrl-btn:hover {
+            background-color: var(--vscode-button-secondaryHoverBackground);
+        }
+
+        .ctrl-btn.play {
+            width: 44px;
+            height: 44px;
+            background-color: #1DB954;
+            color: #fff;
+            font-size: 20px;
+        }
+
+        .ctrl-btn.play:hover {
+            background-color: #1ed760;
+        }
+
+        .divider {
+            width: 100%;
+            height: 1px;
+            background-color: var(--vscode-widget-border, rgba(255,255,255,0.1));
+            margin: 8px 0 16px;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--vscode-descriptionForeground);
+            font-size: 11px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .logout-btn:hover {
+            color: var(--vscode-foreground);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="{{spotifyIconUri}}" alt="Spotify" />
+        <span>Spotify</span>
+        <div class="status">
+            <div class="status-dot"></div>
+            Connected
+        </div>
+    </div>
+
+    <div class="current-track-play" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; width: 100%;">
+        <div class="album-art-wrapper" style="width: 100%; max-width: 320px; aspect-ratio: 1/1; border-radius: 16px; overflow: hidden; background: #222; box-shadow: 0 2px 16px rgba(0,0,0,0.18); display: flex; align-items: center; justify-content: center; margin-bottom: 18px;">
+            <img id="albumArt" src="{{defaultAlbumArtUri}}" alt="Album Art" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        </div>
+        <div class="track-name" id="trackName" style="font-size: 18px; font-weight: 700; margin-bottom: 6px; text-align: center; width: 100%;">Track Name</div>
+        <div class="track-artist" id="trackArtist" style="font-size: 15px; color: var(--vscode-descriptionForeground); text-align: center; width: 100%;">Artist Name</div>
+    </div>
+
+    <div class="controls">
+        <button class="ctrl-btn" id="prevBtn" title="Previous">&#9664;&#9664;</button>
+        <button class="ctrl-btn play" id="playBtn" title="Play/Pause">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white" style="margin-left: 2px;">
+                <polygon points="5,3 19,12 5,21"/>
+            </svg>
+        </button>
+        <button class="ctrl-btn" id="nextBtn" title="Next">&#9654;&#9654;</button>
+        <!-- <button class="ctrl-btn" id="favBtn" title="Like">&#9829;</button> -->
+    </div>
+
+    <div class="divider"></div>
+    <button class="logout-btn" id="logoutBtn">Sign out</button>
+
+    <script>
+
+        const vscode = acquireVsCodeApi();
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            vscode.postMessage({ command: 'previous' });
+        });
+        document.getElementById('playBtn').addEventListener('click', () => {
+            vscode.postMessage({ command: 'togglePlay' });
+        });
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            vscode.postMessage({ command: 'next' });
+        });
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            vscode.postMessage({ command: 'logout' });
+        });
+
+        const albumArtEl = document.getElementById('albumArt');
+        const trackNameEl = document.getElementById('trackName');
+        const trackArtistEl = document.getElementById('trackArtist');
+
+        let lastAlbumArt = '';
+        let lastName = '';
+        let lastArtist = '';
+
+        // Listen for messages from the extension to update track info
+        window.addEventListener('message', (event) => {
+
+            const { albumArtUrl, name, artist, isPlaying: extPlaying, isDeviceAvailable } = event.data || {};
+
+            if (typeof extPlaying === 'boolean') {
+                isPlaying = extPlaying;
+                updatePlayBtn();
+            }
+
+            if (albumArtUrl && albumArtUrl !== lastAlbumArt) {
+                albumArtEl.src = albumArtUrl;
+                lastAlbumArt = albumArtUrl;
+            }
+
+            if (name && name !== lastName) {
+                trackNameEl.textContent = name;
+                lastName = name;
+            }
+
+            if (artist && artist !== lastArtist) {
+                trackArtistEl.textContent = artist;
+                lastArtist = artist;
+            }
+
+        });
+
+        function updatePlayBtn() {
+
+            const playBtn = document.getElementById('playBtn');
+
+            if (isPlaying) {
+                // Pause icon — two vertical bars
+                playBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <rect x="5" y="3" width="4" height="18"/>
+                    <rect x="15" y="3" width="4" height="18"/>
+                </svg>`;
+            } else {
+                // Play icon
+                playBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="white" style="margin-left: 2px;">
+                    <polygon points="5,3 19,12 5,21"/>
+                </svg>`;
+            }
+        }
+
+    </script>
+</body>
+</html>

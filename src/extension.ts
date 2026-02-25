@@ -1,25 +1,27 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { SidebarProvider } from './statusBar/sidebarProvider.js';
+import { registerAllCommands } from './commands/index.js';
+import { initAuth } from './auth/authProvider.js';
+import { TrackPoller } from './player/trackPoller.js';
+import { StatusBarProvider } from './statusBar/statusBarProvider.js';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export const trackPoller = new TrackPoller(10000);
+export async function activate(context: vscode.ExtensionContext) {
+	// Initialize auth (must be first — other modules depend on tokenStorage)
+	initAuth(context);
+	const sidebarProvider = new SidebarProvider(context);
+	const statusBarProvider = new StatusBarProvider(context);
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "spotify-vscode" is now active!');
+	registerAllCommands(context, sidebarProvider, statusBarProvider);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('spotify-vscode.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from spotify-vscode!');
-	});
-
-	context.subscriptions.push(disposable);
+	statusBarProvider.init();
+	trackPoller.start();
+	context.subscriptions.push({ dispose: () => trackPoller.dispose() });
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(SidebarProvider.viewType, sidebarProvider),
+	);
 }
 
 // This method is called when your extension is deactivated
