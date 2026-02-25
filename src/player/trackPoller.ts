@@ -13,7 +13,7 @@ export class TrackPoller {
     private _lastTrackInfo?: TrackInfo;
     private _listeners: Set<(track: TrackInfo) => void> = new Set();
 
-    constructor(private readonly intervalMs: number = 1000) {}
+    constructor(private readonly intervalMs: number = 1500) {}
 
     public start() {
         this.stop();

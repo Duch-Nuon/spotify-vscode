@@ -96,7 +96,12 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             vscode.Uri.joinPath(this.context.extensionUri, "media", "spotify-icon.svg"),
         );
 
+        const defaultAlbumArtUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this.context.extensionUri, "media", "open-spotify.png"),
+        );
+
         html = html.replace(/\{\{spotifyIconUri\}\}/g, spotifyIconUri.toString());
+        html = html.replace(/\{\{defaultAlbumArtUri\}\}/g, defaultAlbumArtUri.toString());
 
         return html;
     }
