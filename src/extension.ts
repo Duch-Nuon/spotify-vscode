@@ -11,6 +11,7 @@ import { SidebarQueueProvider } from './statusBar/sidebarQueueProvider.js';
 export const trackPoller = new TrackPoller(10000);
 export async function activate(context: vscode.ExtensionContext) {
 	// Initialize auth (must be first — other modules depend on tokenStorage)
+	checkVersionExtension(context);
 	initAuth(context);
 	const sidebarProvider = new SidebarProvider(context);
 	const statusBarProvider = new StatusBarProvider(context);
@@ -28,6 +29,26 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(SidebarQueueProvider.viewId, sidebarQueueProvider),
 	);
+}
+
+export async function checkVersionExtension(context: vscode.ExtensionContext) {
+	 const previousVersion = context.globalState.get<string>("version");
+		const currentVersion =
+			vscode.extensions.getExtension("publisher.extension-id")?.packageJSON.version;
+
+		if (previousVersion && previousVersion !== currentVersion) {
+			vscode.window
+			.showInformationMessage(
+				`Extension updated to v${currentVersion}. Reload to apply changes.`,
+				"Reload"
+			)
+			.then(action => {
+				if (action === "Reload") {
+				vscode.commands.executeCommand("workbench.action.reloadWindow");
+				}
+			});
+		}
+		context.globalState.update("version", currentVersion);
 }
 
 // This method is called when your extension is deactivated
