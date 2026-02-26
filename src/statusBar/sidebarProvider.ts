@@ -100,8 +100,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         const currentTrackInfo = await getCurrentTrackInfo();
 
         if (currentTrackInfo) {
-
-            console.log(currentTrackInfo);
             
             const injected = `<script>
                                 var currentTrackDate = ${JSON.stringify({
