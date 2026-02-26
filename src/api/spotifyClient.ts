@@ -23,12 +23,12 @@ interface SpotifyPlaybackState {
 }
 
 export interface SpotifyUserQueueItem {
-    
+
     currently_playing: {
         album: {
             name: string;
             images: { url: string; height: number; width: number }[];
-            url: string;
+            uri: string;
         },
         artists: { id: string; name: string }[];
     },
@@ -37,7 +37,7 @@ export interface SpotifyUserQueueItem {
             album: {
                 name: string;
                 images: { url: string; height: number; width: number }[];
-                url: string;
+                uri: string;
             },
             artists: { id: string; name: string }[];
             }
@@ -226,9 +226,14 @@ export class SpotifyClient {
         try {
 
             const response = await fetch('https://api.spotify.com/v1/me/player/play', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${resolvedToken}` },
-                body: JSON.stringify({ context_uri: trackUri })
+                method: 'PUT',
+                headers: { 
+                    'Authorization': `Bearer ${resolvedToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    context_uri: trackUri
+                })
             });
 
             if (!response.ok) {

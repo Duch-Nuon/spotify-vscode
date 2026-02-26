@@ -45,6 +45,10 @@
       {
         "command": "spotify-vscode.favorite",
         "title": "Favorite Track"
+      },
+      {
+        "command": "spotify-vscode.playTrackInQueue",
+        "title": "Play Track in Queue"
       }
     ],
     "viewsContainers": {

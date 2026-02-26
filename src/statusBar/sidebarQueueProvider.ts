@@ -40,27 +40,10 @@ export class SidebarQueueProvider implements vscode.WebviewViewProvider {
         this.updateView();
 
         webviewView.webview.onDidReceiveMessage(async (message) => {
-
             switch (message.command) {
-
-                case "login":
-                    vscode.commands.executeCommand("spotify-vscode.login");
+                case "playTrackInQueue":
+                    vscode.commands.executeCommand("spotify-vscode.playTrackInQueue", message);
                     break;
-                case "logout":
-                    vscode.commands.executeCommand("spotify-vscode.logout");
-                    break;
-                case "togglePlay":
-                    vscode.commands.executeCommand("spotify-vscode.togglePlay");
-                    break;
-                case "next":
-                    vscode.commands.executeCommand("spotify-vscode.next");
-                    break;
-                case "previous":
-                    vscode.commands.executeCommand("spotify-vscode.previous");
-                    break;
-                // case "favorite":
-                //     vscode.commands.executeCommand("spotify-vscode.favorite");
-                //     break;
             }
         });
     }
@@ -83,12 +66,13 @@ export class SidebarQueueProvider implements vscode.WebviewViewProvider {
         const queueInfo = await getQueueInfo();
 
         if (queueInfo && queueInfo.currently_playing && queueInfo.queue) {
-            
+
             queueInfo.queue.unshift(queueInfo.currently_playing);
 
             const injected = `
                 <script>
-                    const queueData = ${JSON.stringify(queueInfo.queue)};
+                    const vscode = acquireVsCodeApi();
+                    var queueData = ${JSON.stringify(queueInfo.queue)};
                 </script>
             `;
             // Inject before </head> so it's available when body scripts run

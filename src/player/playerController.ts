@@ -51,4 +51,15 @@ export class PlayerController {
             vscode.window.showErrorMessage(`Spotify: Failed to ${isPlaying ? 'pause' : 'resume'} playback`);
         }
     }
+
+    async playTrackInQueue(trackUri: string) {
+
+        const success = await SpotifyClient.playNextInQueue(this.token, trackUri);
+
+        if (success) {
+            vscode.window.showInformationMessage('Spotify: Playing track from queue');
+        } else {
+            vscode.window.showErrorMessage('Spotify: Failed to play selected track from queue');
+        }
+    }
 }

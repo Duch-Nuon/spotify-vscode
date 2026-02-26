@@ -193,7 +193,7 @@
     </div>
 
     <script>
-      const tracks = [];
+      var tracks = [];
 
       let currentTrack = 0;
       let playing = true;
@@ -223,7 +223,6 @@
           )
           .join("");
       }
-
       // queueData will be injected by the extension when the page loads
       if(queueData.length > 0){
           tracks.length = 0; // Clear existing tracks
@@ -232,38 +231,17 @@
       }
 
       function selectTrack(i) {
+        
         currentTrack = i;
         playing = true;
+
+        vscode.postMessage({ command: "playTrackInQueue", trackUri: tracks[i].context_uri });
+
         renderList();
         document
           .querySelector(".track-item.active")
           ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
 
-      function togglePlay() {
-        playing = !playing;
-        updatePlayBtn();
-      }
-
-      function updatePlayBtn() {
-        const icon = document.getElementById("play-icon");
-        icon.innerHTML = playing
-          ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'
-          : '<path d="M8 5v14l11-7z"/>';
-      }
-
-      function prevTrack() {
-        selectTrack((currentTrack - 1 + tracks.length) % tracks.length);
-      }
-
-      function nextTrack() {
-        selectTrack((currentTrack + 1) % tracks.length);
-      }
-
-      function seek(e) {
-        const bar = e.currentTarget;
-        const pct = (e.offsetX / bar.offsetWidth) * 100;
-        document.getElementById("progress-fill").style.width = pct + "%";
       }
 
       renderList();

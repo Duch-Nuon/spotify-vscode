@@ -45,7 +45,7 @@ export async function getCurrentTrackInfo(): Promise<CurrentTrackInfo | null> {
 export async function getQueueInfo(): Promise<QueueInfo | null> {
 
 	const token = getAccessToken();
-	const queue = await SpotifyClient.getUserQueue(token);
+	const queue = await SpotifyClient.getUserQueue(token);	
 
 	if (!queue || !queue.currently_playing || !queue.queue){ 
 		return null;
@@ -56,15 +56,15 @@ export async function getQueueInfo(): Promise<QueueInfo | null> {
 		artist: queue.currently_playing.artists.map(a => a.name).join(', '),
 		albumArtUrl: queue.currently_playing.album.images[0]?.url || '',
 		isPlaying: true,
-		context_uri: queue.currently_playing.album.url
+		context_uri: queue.currently_playing.album.uri
 	};
 
 	const queueItems = queue.queue.map(item => ({
 		title: item.album.name,
 		artist: item.artists.map(a => a.name).join(', '),
 		albumArtUrl: item.album.images[0]?.url || '',
-		context_uri: item.album.url
-	}));
+		context_uri: item.album.uri
+	}));	
 
 	return { currently_playing, queue: queueItems };
 }
