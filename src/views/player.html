@@ -192,10 +192,9 @@
         let lastName = '';
         let lastArtist = '';
 
-        // Listen for messages from the extension to update track info
-        window.addEventListener('message', (event) => {
+        function updateTrackInfo(data) {
 
-            const { albumArtUrl, name, artist, isPlaying: extPlaying, isDeviceAvailable } = event.data || {};
+            const { albumArtUrl, name, artist, isPlaying: extPlaying } = data || {};
 
             if (typeof extPlaying === 'boolean') {
                 isPlaying = extPlaying;
@@ -216,6 +215,19 @@
                 trackArtistEl.textContent = artist;
                 lastArtist = artist;
             }
+        }
+
+        // currentTrackDate will be injected by the extension when the page loads
+        if(currentTrackDate){
+            updateTrackInfo(currentTrackDate);
+        }
+
+        // Listen for messages from the extension to update track info
+        window.addEventListener('message', (event) => {
+
+            const { albumArtUrl, name, artist, isPlaying: extPlaying, isDeviceAvailable } = event.data || {};
+
+            updateTrackInfo({ albumArtUrl, name, artist, isPlaying: extPlaying });
 
         });
 

@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { isLoggedIn } from "../auth/authProvider.js";
 import { trackPoller } from "../extension.js";
+import { getCurrentTrackInfo } from "../player/playerState.js";
 export class SidebarProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = "spotifySidebarView";
     private _view?: vscode.WebviewView;
@@ -75,7 +76,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         }
         const loggedIn = await isLoggedIn();
         const htmlFile = loggedIn ? "player.html" : "login.html";
-        this._view.webview.html = this.loadHtml(this._view.webview, htmlFile);
+        this._view.webview.html = await this.loadHtml(this._view.webview, htmlFile);
 
         if (loggedIn && !trackPoller.isRunning()) {
             trackPoller.start(); // ensure poller is running if logged in
@@ -83,7 +84,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     }
 
     /** Read an HTML file from views/ and replace {{placeholders}} with webview URIs. */
-    private loadHtml(webview: vscode.Webview, filename: string): string {
+    private async loadHtml(webview: vscode.Webview, filename: string): Promise<string> {
         const filePath = path.join(this.context.extensionPath, "dist", "views", filename);
         
         let html = fs.readFileSync(filePath, "utf-8");        
@@ -95,6 +96,28 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         const defaultAlbumArtUri = webview.asWebviewUri(
             vscode.Uri.joinPath(this.context.extensionUri, "media", "open-spotify.png"),
         );
+
+        const currentTrackInfo = await getCurrentTrackInfo();
+
+        if (currentTrackInfo) {
+
+            console.log(currentTrackInfo);
+            
+            const injected = `<script>
+                                var currentTrackDate = ${JSON.stringify({
+                                    name: currentTrackInfo.name,
+                                    artist: currentTrackInfo.artist,
+                                    albumArtUrl: currentTrackInfo.albumArtUrl,
+                                    isPlaying: currentTrackInfo.isPlaying
+                                })};
+                            </script>`;
+            html = html.replace('</head>', `${injected}</head>`);
+        }else{
+            const injected = `<script>
+                                var currentTrackDate = ${JSON.stringify(null)};
+                            </script>`;
+            html = html.replace('</head>', `${injected}</head>`);
+        }
 
         html = html.replace(/\{\{spotifyIconUri\}\}/g, spotifyIconUri.toString());
         html = html.replace(/\{\{defaultAlbumArtUri\}\}/g, defaultAlbumArtUri.toString());
