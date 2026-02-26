@@ -22,6 +22,28 @@ interface SpotifyPlaybackState {
     } | null;
 }
 
+export interface SpotifyUserQueueItem {
+    
+    currently_playing: {
+        album: {
+            name: string;
+            images: { url: string; height: number; width: number }[];
+            url: string;
+        },
+        artists: { id: string; name: string }[];
+    },
+    queue: [
+            {
+            album: {
+                name: string;
+                images: { url: string; height: number; width: number }[];
+                url: string;
+            },
+            artists: { id: string; name: string }[];
+            }
+        ];
+}
+
 export class SpotifyClient {
 
     static async getPlayBackState(token: Promise<string | null>): Promise<SpotifyPlaybackState | null> {
@@ -162,6 +184,61 @@ export class SpotifyClient {
 
         } catch (error) {
             console.error('Error toggling play/pause:', error);
+            return false;
+        }
+    }
+
+    static async getUserQueue(token: Promise<string | null>): Promise<SpotifyUserQueueItem | null> {    
+        const resolvedToken = await token;
+
+        if (!resolvedToken) {
+            return null;
+        }
+
+        try {
+
+            const response = await fetch('https://api.spotify.com/v1/me/player/queue', {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${resolvedToken}` }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Spotify API error: ${response.status}` + ` ${await response.text()}`);
+            }
+
+            const data = await response.json() as SpotifyUserQueueItem;
+            return data;
+
+        } catch (error) {
+            console.error('Error fetching user queue:', error);
+            return null;
+        }
+
+    }
+
+    static async playNextInQueue(token: Promise<string | null>, trackUri: string): Promise<boolean> {
+        const resolvedToken = await token;
+
+        if (!resolvedToken) {
+            return false;
+        }
+
+        try {
+
+            const response = await fetch('https://api.spotify.com/v1/me/player/play', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${resolvedToken}` },
+                body: JSON.stringify({ context_uri: trackUri })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Spotify API error: ${response.status}` + ` ${await response.text()}`);
+            }
+
+            return true;
+
+        } catch (error) {
+            console.error('Error playing track:', error);
             return false;
         }
     }

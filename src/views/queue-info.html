@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--vscode-font-family);
+        font-size: var(--vscode-font-size);
+        font-weight: var(--vscode-font-weight);
+        color: var(--vscode-foreground);
+        background-color: transparent;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+      }
+
+      .app {
+        width: 100%;
+        max-width: 420px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Music List */
+      .music-list {
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 20px;
+      }
+
+      .track-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 20px;
+        cursor: pointer;
+        transition: background 0.15s;
+        border-radius: 4px;
+        position: relative;
+      }
+
+      .track-item:hover {
+        background-color: var(--vscode-list-hoverBackground);
+      }
+
+      .track-item.active {
+        background-color: var(--vscode-list-activeSelectionBackground);
+      }
+
+      .track-item.active .item-title {
+        color: #1db954;
+      }
+
+      .item-thumb {
+        width: 44px;
+        height: 44px;
+        border-radius: 4px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: var(--vscode-editor-background);
+        position: relative;
+      }
+
+      .item-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .item-thumb-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        background-color: var(--vscode-editor-background);
+      }
+
+      .playing-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .track-item.active .playing-overlay {
+        display: flex;
+      }
+
+      .bars {
+        display: flex;
+        gap: 2px;
+        align-items: flex-end;
+        height: 16px;
+      }
+
+      .bar {
+        width: 3px;
+        background: #1db954;
+        border-radius: 1px;
+        animation: bounce 0.8s infinite ease-in-out;
+      }
+
+      .bar:nth-child(1) {
+        height: 6px;
+        animation-delay: 0s;
+      }
+      .bar:nth-child(2) {
+        height: 12px;
+        animation-delay: 0.2s;
+      }
+      .bar:nth-child(3) {
+        height: 8px;
+        animation-delay: 0.4s;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: scaleY(0.5);
+        }
+        50% {
+          transform: scaleY(1);
+        }
+      }
+
+      .item-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .item-title {
+        font-size: 1em;
+        font-weight: 500;
+        color: var(--vscode-foreground);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 3px;
+      }
+
+      .item-artist {
+        font-size: 0.85em;
+        color: var(--vscode-descriptionForeground);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .item-duration {
+        font-size: 0.85em;
+        color: var(--vscode-descriptionForeground);
+        flex-shrink: 0;
+      }
+
+      /* Scrollbar */
+      .music-list::-webkit-scrollbar {
+        width: 4px;
+      }
+      .music-list::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .music-list::-webkit-scrollbar-thumb {
+        background: var(
+          --vscode-scrollbarSlider-background,
+          rgba(255, 255, 255, 0.2)
+        );
+        border-radius: 2px;
+      }
+      .music-list::-webkit-scrollbar-thumb:hover {
+        background: var(
+          --vscode-scrollbarSlider-hoverBackground,
+          rgba(255, 255, 255, 0.4)
+        );
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <!-- Music List -->
+      <div class="music-list" id="track-list"></div>
+    </div>
+
+    <script>
+      const tracks = [];
+
+      let currentTrack = 0;
+      let playing = true;
+
+      function renderList() {
+        const list = document.getElementById("track-list");
+        list.innerHTML = tracks
+          .map(
+            (t, i) => `
+                <div class="track-item ${i === currentTrack ? "active" : ""}" onclick="selectTrack(${i})">
+                  <div class="item-thumb">
+                    <div class="item-thumb-placeholder"><img src="${t.albumArtUrl}" alt="${t.title}" /></div>
+                    <div class="playing-overlay">
+                      <div class="bars">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="item-info">
+                    <div class="item-title">${t.title}</div>
+                    <div class="item-artist">${t.artist}</div>
+                  </div>
+                </div>
+              `,
+          )
+          .join("");
+      }
+
+      // queueData will be injected by the extension when the page loads
+      if(queueData.length > 0){
+          tracks.length = 0; // Clear existing tracks
+          tracks.push(...queueData); // Add new tracks
+          renderList(); // Re-render the list with updated tracks
+      }
+
+      function selectTrack(i) {
+        currentTrack = i;
+        playing = true;
+        renderList();
+        document
+          .querySelector(".track-item.active")
+          ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      function togglePlay() {
+        playing = !playing;
+        updatePlayBtn();
+      }
+
+      function updatePlayBtn() {
+        const icon = document.getElementById("play-icon");
+        icon.innerHTML = playing
+          ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'
+          : '<path d="M8 5v14l11-7z"/>';
+      }
+
+      function prevTrack() {
+        selectTrack((currentTrack - 1 + tracks.length) % tracks.length);
+      }
+
+      function nextTrack() {
+        selectTrack((currentTrack + 1) % tracks.length);
+      }
+
+      function seek(e) {
+        const bar = e.currentTarget;
+        const pct = (e.offsetX / bar.offsetWidth) * 100;
+        document.getElementById("progress-fill").style.width = pct + "%";
+      }
+
+      renderList();
+    </script>
+  </body>
+</html>

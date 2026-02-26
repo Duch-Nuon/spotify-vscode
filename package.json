@@ -63,6 +63,12 @@
           "id": "spotifySidebarView",
           "name": "Spotify",
           "icon": "media/spotify.png"
+        },
+        {
+          "id": "spotifyQueueInfoView",
+          "name": "Next Queue Info",
+          "icon": "media/spotify.png",
+          "type": "webview"
         }
       ]
     },
