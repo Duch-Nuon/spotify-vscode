@@ -77,6 +77,16 @@ export class SidebarQueueProvider implements vscode.WebviewViewProvider {
             `;
             // Inject before </head> so it's available when body scripts run
             html = html.replace('</head>', `${injected}</head>`);
+        }else{
+
+            const injected = `
+                <script>
+                    const vscode = acquireVsCodeApi();
+                    var queueData = ${JSON.stringify([])};
+                </script>
+            `;
+            
+            html = html.replace('</head>', `${injected}</head>`);
         }
 
         return html;
