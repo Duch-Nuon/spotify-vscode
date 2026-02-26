@@ -98,4 +98,16 @@ export class SidebarQueueProvider implements vscode.WebviewViewProvider {
             context_uri
         });
     }
+
+    public reRenderQueueUI(queueData: any) {
+
+        if (!this._view) {
+            return;
+        }
+
+        this._view.webview.postMessage({
+            command: "updateQueue",
+            queueData
+        });
+    }
 }

@@ -14,8 +14,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	initAuth(context);
 	const sidebarProvider = new SidebarProvider(context);
 	const statusBarProvider = new StatusBarProvider(context);
+	const sidebarQueueProvider = new SidebarQueueProvider(context);
 
-	registerAllCommands(context, sidebarProvider, statusBarProvider);
+	registerAllCommands(context, sidebarProvider, statusBarProvider, sidebarQueueProvider);
 
 	statusBarProvider.init();
 	trackPoller.start();
@@ -25,7 +26,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	);
 
 	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(SidebarQueueProvider.viewId, new SidebarQueueProvider(context)),
+		vscode.window.registerWebviewViewProvider(SidebarQueueProvider.viewId, sidebarQueueProvider),
 	);
 }
 

@@ -195,8 +195,8 @@
     <script>
       var tracks = [];
 
-      let currentTrack = 0;
-      let playing = true;
+      var currentTrack = 0;
+      var playing = true;
 
       function renderList() {
         const list = document.getElementById("track-list");
@@ -226,9 +226,23 @@
       // queueData will be injected by the extension when the page loads
       if(queueData.length > 0){
           tracks.length = 0; // Clear existing tracks
+
           tracks.push(...queueData); // Add new tracks
           renderList(); // Re-render the list with updated tracks
       }
+
+      window.addEventListener('message', (event) => {
+          const { command, queueData } = event.data || {};
+
+          if (command === 'updateQueue' && Array.isArray(queueData)) {
+              tracks = queueData;   // ← simple reassign
+              currentTrack = 0;     // ← reset BEFORE renderList
+              renderList();         // ← now renders with currentTrack = 0 = active
+
+              document.querySelector('.track-item.active')
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+      });
 
       function selectTrack(i) {
         
