@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { trackPoller } from "../extension.js";
 import { isLoggedIn } from "../auth/authProvider.js";
 import { TrackInfo } from "../player/trackPoller.js";
+import { getCurrentTrackInfo } from "../player/playerState.js";
 
 export class StatusBarProvider {
     private _playPauseItem: vscode.StatusBarItem;
@@ -90,8 +91,16 @@ export class StatusBarProvider {
         this._playPauseItem.text = isPlaying ? "$(debug-pause)" : "$(play)";
     }
 
-    public onLogin() {
+    public async onLogin() {
+        const currentTrackInfo = await getCurrentTrackInfo();
         this.show();
+        this.updateTrack({
+            name: currentTrackInfo?.name || "",
+            artist: currentTrackInfo?.artist || "",
+            albumArtUrl: currentTrackInfo?.albumArtUrl || "",
+            isPlaying: currentTrackInfo?.isPlaying || false,
+            isDeviceAvailable: currentTrackInfo?.isDeviceAvailable || false,
+        });
     }
 
     public onLogout() {

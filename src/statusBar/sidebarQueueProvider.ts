@@ -54,8 +54,7 @@ export class SidebarQueueProvider implements vscode.WebviewViewProvider {
             return;
         }
 
-        const loggedIn = await isLoggedIn();
-        const htmlFile = loggedIn ? "queue-info.html" : "login.html";
+        const htmlFile = 'queue-info.html';
         this._view.webview.html = await this.loadHtml(this._view.webview, htmlFile);
     }
 
