@@ -36,7 +36,7 @@ export async function updateTrackUI(
     });
 
     await getQueueInfo().then(queueInfo => {
-        if (queueInfo && sideQueueBarProvider) {
+        if (queueInfo && sideQueueBarProvider && typeof sideQueueBarProvider.reRenderQueueUI === 'function') {
             queueInfo.queue.unshift(queueInfo.currently_playing);
             sideQueueBarProvider.reRenderQueueUI(queueInfo.queue);
         }
