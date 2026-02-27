@@ -2,7 +2,7 @@
   "name": "spotify-vscode-player",
   "displayName": "spotify-vscode",
   "description": "spotify-vscode is a Visual Studio Code extension that allows you to control Spotify playback directly from your editor. With spotify-vscode, you can play, pause, skip tracks, and manage your Spotify playlist without leaving your coding environment.",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "publisher": "duch-nuon",
   "license": "MIT",
   "engines": {
