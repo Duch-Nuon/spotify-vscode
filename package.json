@@ -9,7 +9,9 @@
     "vscode": "^1.109.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Music",
+    "Spotify"
   ],
   "icon": "media/spotify-logo.png",
   "repository": {

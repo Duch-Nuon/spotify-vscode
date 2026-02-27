@@ -12,7 +12,7 @@ import { SidebarQueueProvider } from '../statusBar/sidebarQueueProvider';
 
 export function registerAllCommands(context: vscode.ExtensionContext, sidebarProvider: SidebarProvider, statusBarProvider: StatusBarProvider, sidebarQueueProvider: SidebarQueueProvider): void {
   context.subscriptions.push(
-    registerPlayCommand(context, statusBarProvider, sidebarProvider, sidebarQueueProvider),
+    registerPlayCommand(context, statusBarProvider, sidebarProvider),
     registerNextCommand(context, statusBarProvider, sidebarProvider, sidebarQueueProvider),
     registerPreviousCommand(context, statusBarProvider, sidebarProvider, sidebarQueueProvider),
     registerFavoriteCommand(context),
