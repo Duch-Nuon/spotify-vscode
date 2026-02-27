@@ -4,8 +4,10 @@ import * as crypto from 'crypto';
 import * as http from 'http';
 import { TokenStorage } from './tokenStorage.js';
 
-const config = vscode.workspace.getConfiguration('spotify');
-const clientId = config.get<string>('clientId');
+
+function getClientId(): string {
+  return vscode.workspace.getConfiguration('spotify').get<string>('clientId') ?? '';
+}
 
 const REDIRECT_URI = 'http://127.0.0.1:7867/callback';
 
@@ -81,12 +83,13 @@ export async function loginWithSpotify(): Promise<string | null> {
   }
 
   // 3. Fresh login
+
   const codeVerifier = generateRandomString(64);
   const codeChallenge = sha256Base64url(codeVerifier);
 
   const authUrl = new URL('https://accounts.spotify.com/authorize');
   authUrl.searchParams.set('response_type', 'code');
-  authUrl.searchParams.set('client_id', clientId ?? '');
+  authUrl.searchParams.set('client_id', getClientId());
   authUrl.searchParams.set('scope', SCOPES);
   authUrl.searchParams.set('code_challenge_method', 'S256');
   authUrl.searchParams.set('code_challenge', codeChallenge);
@@ -142,11 +145,12 @@ function waitForCallback(): Promise<string | null> {
 }
 
 async function exchangeCodeForToken(code: string, codeVerifier: string): Promise<{ accessToken: string; refreshToken: string; expiresIn: number } | null> {
+
   const body = new URLSearchParams({
     grant_type: 'authorization_code',
     code,
     redirect_uri: REDIRECT_URI,
-    client_id: clientId ?? '',
+    client_id: getClientId(),
     code_verifier: codeVerifier,
   });
 
@@ -175,10 +179,11 @@ async function exchangeCodeForToken(code: string, codeVerifier: string): Promise
 }
 
 async function refreshToken(rt: string): Promise<{ accessToken: string; refreshToken: string; expiresIn: number } | null> {
+
   const body = new URLSearchParams({
     grant_type: 'refresh_token',
     refresh_token: rt,
-    client_id: clientId ?? '',
+    client_id: getClientId(),
   });
 
   const response = await fetch('https://accounts.spotify.com/api/token', {
