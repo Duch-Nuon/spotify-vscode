@@ -1,3 +1,5 @@
+**[Install this extension from the VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=duch-nuon.spotify-vscode-player)**
+
 ![Extension Screenshot](media/Screenshot-not-login.png)
 # Spotify VS Code Extension
 
