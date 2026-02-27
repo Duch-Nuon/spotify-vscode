@@ -10,7 +10,7 @@ export class SidebarQueueProvider implements vscode.WebviewViewProvider {
 
     private _view?: vscode.WebviewView;
 
-    private _lastTrackInfo?: { title: string; artist: string; albumArtUrl: string, isPlaying?: boolean, context_uri?: string };
+    private _lastTrackInfo?: { title: string; artist: string; albumArtUrl: string, isPlaying?: boolean, context_uri?: string }[];
 
     constructor(private readonly context: vscode.ExtensionContext) { }
 
@@ -25,13 +25,7 @@ export class SidebarQueueProvider implements vscode.WebviewViewProvider {
         webviewView.onDidChangeVisibility(() => {
             if (webviewView.visible) {
                 if (this._lastTrackInfo) {
-                    this.updateQueueInfo(
-                        this._lastTrackInfo.title,
-                        this._lastTrackInfo.artist,
-                        this._lastTrackInfo.albumArtUrl,
-                        this._lastTrackInfo.isPlaying,
-                        this._lastTrackInfo.context_uri
-                    );
+                    this.reRenderQueueUI(this._lastTrackInfo);
                 }
             }
         });
@@ -91,27 +85,14 @@ export class SidebarQueueProvider implements vscode.WebviewViewProvider {
         return html;
     }
 
-    public updateQueueInfo(title: string, artist: string, albumArtUrl: string, isPlaying?: boolean, context_uri?: string) {
-
-        if (!this._view){
-            return;
-        }
-
-        this._lastTrackInfo = { title, artist, albumArtUrl, isPlaying, context_uri };
-
-        this._view.webview.postMessage({
-            title,
-            artist,
-            albumArtUrl,
-            isPlaying,
-            context_uri
-        });
-    }
-
     public reRenderQueueUI(queueData: any) {
 
         if (!this._view) {
             return;
+        }
+
+        if(queueData){
+            this._lastTrackInfo = queueData;
         }
 
         this._view.webview.postMessage({
