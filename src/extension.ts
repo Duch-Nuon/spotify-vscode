@@ -34,7 +34,7 @@ export async function activate(context: vscode.ExtensionContext) {
 export async function checkVersionExtension(context: vscode.ExtensionContext) {
 	 const previousVersion = context.globalState.get<string>("version");
 		const currentVersion =
-			vscode.extensions.getExtension("publisher.extension-id")?.packageJSON.version;
+			vscode.extensions.getExtension("duch-nuon.spotify-vscode-player")?.packageJSON.version;
 
 		if (previousVersion && previousVersion !== currentVersion) {
 			vscode.window
