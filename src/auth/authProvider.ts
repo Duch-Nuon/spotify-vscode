@@ -9,7 +9,13 @@ function getClientId(): string {
   return vscode.workspace.getConfiguration('spotify').get<string>('clientId') ?? '';
 }
 
-const REDIRECT_URI = 'http://127.0.0.1:7867/callback';
+function getRedirectPort(): number {
+  return vscode.workspace.getConfiguration('spotify').get<number>('redirectPort') ?? 7867;
+}
+
+function getRedirectUri(): string {
+  return `http://127.0.0.1:${getRedirectPort()}/callback`;
+}
 
 const SCOPES = [
   'user-modify-playback-state',
@@ -93,7 +99,7 @@ export async function loginWithSpotify(): Promise<string | null> {
   authUrl.searchParams.set('scope', SCOPES);
   authUrl.searchParams.set('code_challenge_method', 'S256');
   authUrl.searchParams.set('code_challenge', codeChallenge);
-  authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
+  authUrl.searchParams.set('redirect_uri', getRedirectUri());
 
   await vscode.env.openExternal(vscode.Uri.parse(authUrl.toString()));
 
@@ -134,7 +140,7 @@ function waitForCallback(): Promise<string | null> {
       }
     });
 
-    server.listen(7867, '127.0.0.1');
+    server.listen(getRedirectPort(), '127.0.0.1');
 
     // Timeout after 2 minutes
     setTimeout(() => {
@@ -149,7 +155,7 @@ async function exchangeCodeForToken(code: string, codeVerifier: string): Promise
   const body = new URLSearchParams({
     grant_type: 'authorization_code',
     code,
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: getRedirectUri(),
     client_id: getClientId(),
     code_verifier: codeVerifier,
   });

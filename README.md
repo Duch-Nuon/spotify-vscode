@@ -61,11 +61,12 @@ You can change or reset this value at any time using the same command.
 By default, the extension uses port `7867` for the authentication callback. If you want to use a different port:
 
 1. In your Spotify app settings, add a new Redirect URI with your desired port, e.g. `http://127.0.0.1:PORT/callback`.
-2. In VS Code, open **Settings** (`Ctrl+,` or `Cmd+,`).
-3. Search for `spotify.redirectPort` (if available) or update the extension's configuration to match your chosen port.
-4. Make sure the port you choose is not blocked or in use by another application.
+2. Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`).
+3. Run the command: **Set Spotify Redirect Port**.
+4. Enter your desired port number and press Enter.
+5. Make sure the port you choose is not blocked or in use by another application.
 
-**Note:** If you change the port, you must update both the Spotify app Redirect URI and the extension settings to match.
+**Note:** If you change the port, you must update both the Spotify app Redirect URI and run **Set Spotify Redirect Port** to match.
 
 ## Disclaimer
 

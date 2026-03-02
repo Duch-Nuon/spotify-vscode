@@ -5,6 +5,7 @@ import { registerPreviousCommand } from './previous';
 import { registerFavoriteCommand } from './favorite';
 import { registerLoginCommand } from './login';
 import { registerSetClientIdCommand } from './setClientId';
+import { registerSetRedirectPortCommand } from './setRedirectPort';
 import type { SidebarProvider } from '../statusBar/sidebarProvider.js';
 import { registerLogoutCommand } from './logout';
 import { StatusBarProvider } from '../statusBar/statusBarProvider';
@@ -20,6 +21,7 @@ export function registerAllCommands(context: vscode.ExtensionContext, sidebarPro
     registerLoginCommand(context, sidebarProvider, statusBarProvider, sidebarQueueProvider),
     registerLogoutCommand(context, sidebarProvider, statusBarProvider, sidebarQueueProvider),
     registerPlayTrackInQueueCommand(context, statusBarProvider, sidebarProvider),
-    registerSetClientIdCommand(context)
+    registerSetClientIdCommand(context),
+    registerSetRedirectPortCommand(context)
   );
 }
