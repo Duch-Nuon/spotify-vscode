@@ -11,6 +11,13 @@
   "categories": [
     "Other"
   ],
+  "tags": [
+    "spotify",
+    "music",
+    "player",
+    "control",
+    "playback"
+  ],
   "icon": "media/spotify-logo.png",
   "repository": {
     "type": "git",
