@@ -105,7 +105,7 @@
       "properties": {
         "spotify.clientId": {
           "type": "string",
-          "default": "d6fa3dc0fe434830a1ae1f005c915f30",
+          "default": "3fcc8454b8224bd5923545829b30ef14",
           "description": "Spotify Application Client ID. You can override this in your VS Code settings to use your own Spotify app."
         },
         "spotify.redirectPort": {
